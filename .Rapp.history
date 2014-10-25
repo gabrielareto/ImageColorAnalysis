@@ -1,0 +1,1765 @@
+# CA VS ABUNDANCIA TOTAL#
+par(mfrow=c(1, 2))#
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[which(!rownames(ShortTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+plot(x= log(rowMeans(LongTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Long term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(LongTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(LongTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(LongTerm_CA))[which(!rownames(LongTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick")
+pdf(file=paste0(path.to.figures, "ca_vs_abundancia.pdf"), height=3, width=6)#
+par(mfrow=c(1, 2))#
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[which(!rownames(ShortTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+plot(x= log(rowMeans(LongTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Long term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(LongTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(LongTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(LongTerm_CA))[which(!rownames(LongTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+dev.off()
+?ks.test
+ks.test(rowMeans(ShortTerm_CA)[common], [rowMeans(ShortTerm_CA)which(!rownames(LongTerm_CA) %in% common)])
+ks.test(x=rowMeans(ShortTerm_CA)[common], rowMeans(ShortTerm_CA)[rowMeans(ShortTerm_CA)which(!rownames(LongTerm_CA) %in% common)])
+ks.test(x=rowMeans(ShortTerm_CA)[common], rowMeans(ShortTerm_CA)[rowMeans(ShortTerm_CA)[which(!rownames(LongTerm_CA) %in% common)])
+ks.test(x=rowMeans(ShortTerm_CA)[common], rowMeans(ShortTerm_CA)[which(!rownames(LongTerm_CA) %in% common)])
+ks.test(x=rowMeans(LongTerm_CA)[common], rowMeans(LongTerm_CA)[which(!rownames(LongTerm_CA) %in% common)])
+ks.test(x=rowMeans(ShortTerm_CA)[common], rowMeans(ShortTerm_CA)[which(!rownames(ShortTerm_CA) %in% common)])
+f <- colorRampPalette(c("#9F0000", "#FFBF00", "#006080"))#
+#f <- colorRampPalette(c("red", "orange", "green", "blue"))#
+COL <- f(length(unique(habit))) # nº de hábitos#
+par(mfrow=c(3, 3), mar=c(1, 1, 2, 1))#
+#xx = LongTerm_deviations#
+xx = ShortTerm_deviations#
+for(i in 1:ncol(xx))#
+{#
+	y = xx[,i]#
+	for(j in 1:length(unique(habit)))#
+	{#
+		clase = unique(habit)[j]#
+		y.clase <- rep(y[which(habit==clase)], 2)#
+		d = density(y.clase)#
+		if(j==1) plot(x=d$x, y=d$y/sum(d$y), type="l", col=COL[j], lwd=2, main=colnames(long.vs.short.associations)[i], ylim=c(0, 0.015), xlim=c(-4, 6))#
+		if( j>1) points(x=d$x, y=d$y/sum(d$y), type="l", col=COL[j], lwd=2)	#
+	}#
+	if(i == 1) legend(x=0, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+}
+aptos = spp.by.traits[, "prop.hemiepifito.ind"]<0.5
+APTOS = spp.by.traits[, "prop.hemiepifito.ind"]<0.5 # SIRVE PARA EXCLUIR HEMIEPÍFITOS
+### Define variables explicativas:#
+size <- spp.by.traits[,"x95per.diameter"]#
+habit <- rep("tree", S)#
+habit[spp.by.traits[,"x95per.diameter"]<10] <- "treelet"#
+#habit[spp.by.traits[,"x95per.diameter"]<10 & spp.by.traits[,"mean.n.stems"]==1] <- "treelet"#
+#habit[spp.by.traits[,"x95per.diameter"]<10 & spp.by.traits[,"mean.n.stems"] >1] <- "shrub"#
+habit[spp.by.traits[, "prop.liana.ind"]>=0.5] <- "liana"#
+#
+APTOS = spp.by.traits[, "prop.hemiepifito.ind"]<0.5 # SIRVE PARA EXCLUIR HEMIEPÍFITOS#
+#
+#habit[spp.by.traits[, "prop.hemiepifito.ind"]>0.5] <- "hemi"#
+###################################################################
+# ASOCIACIONES POR HÁBITO#
+###################################################################
+#
+f <- colorRampPalette(c("#9F0000", "#FFBF00", "#006080"))#
+#f <- colorRampPalette(c("red", "orange", "green", "blue"))#
+COL <- f(length(unique(habit[APTOS]))) # nº de hábitos#
+par(mfrow=c(3, 3), mar=c(1, 1, 2, 1))#
+#xx = LongTerm_deviations#
+xx = ShortTerm_deviations[APTOS,]#
+for(i in 1:ncol(xx))#
+{#
+	y = xx[,i]#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		clase = unique(habit[APTOS])[j]#
+		y.clase <- rep(y[which(habit[APTOS]==clase)], 2)#
+		d = density(y.clase)#
+		if(j==1) plot(x=d$x, y=d$y/sum(d$y), type="l", col=COL[j], lwd=2, main=colnames(long.vs.short.associations)[i], ylim=c(0, 0.015), xlim=c(-4, 6))#
+		if( j>1) points(x=d$x, y=d$y/sum(d$y), type="l", col=COL[j], lwd=2)	#
+	}#
+	if(i == 1) legend(x=0, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+}
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#xx = LongTerm_deviations#
+xx = ShortTerm_deviations[APTOS,]#
+for(i in 1:ncol(xx))#
+{#
+	y = xx[,i]#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		clase = unique(habit[APTOS])[j]#
+		y.clase <- rep(y[which(habit[APTOS]==clase)], 2)#
+		d = density(y.clase)#
+		if(j==1) plot(x=d$x, y=d$y/sum(d$y), type="l", col=COL[j], lwd=2, main=colnames(long.vs.short.associations)[i], ylim=c(0, 0.015), xlim=c(-4, 6))#
+		if( j>1) points(x=d$x, y=d$y/sum(d$y), type="l", col=COL[j], lwd=2)	#
+	}#
+	if(i == 1) legend(x=0, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+}
+f <- colorRampPalette(c("#9F0000", "#FFBF00", "#006080"))#
+#f <- colorRampPalette(c("red", "orange", "green", "blue"))#
+COL <- f(length(unique(habit[APTOS]))) # nº de hábitos#
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#xx = LongTerm_deviations[APTOS,]#
+xx = ShortTerm_deviations[APTOS,]#
+for(i in 1:ncol(xx))#
+{#
+	y = xx[,i]#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		clase = unique(habit[APTOS])[j]#
+		y.clase <- rep(y[which(habit[APTOS]==clase)], 2)#
+		d = density(y.clase)#
+		if(j==1) plot(x=d$x, y=d$y/sum(d$y), type="l", col=COL[j], lwd=2, main=colnames(long.vs.short.associations)[i], ylim=c(0, 0.015), xlim=c(-4, 6), xlab="SES", ylab="Density")#
+		if( j>1) points(x=d$x, y=d$y/sum(d$y), type="l", col=COL[j], lwd=2)	#
+	}#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+}
+f <- colorRampPalette(c("#9F0000", "#FFBF00", "#006080"))#
+#f <- colorRampPalette(c("red", "orange", "green", "blue"))#
+COL <- f(length(unique(habit[APTOS]))) # nº de hábitos#
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#
+for(i in 1:ncol(xx))#
+{#
+	# variables respuesta, al corto y largo plazo#
+	ys = ShortTerm_deviations[APTOS,i]#
+	yl = LongTerm_deviations[APTOS,i]#
+	# loop for each nutrient:#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		# qué hábito#
+		clase = unique(habit[APTOS])[j]#
+		# qué desviaciones#
+		ys.clase <- rep(ys[which(habit[APTOS]==clase)], 2)#
+		yl.clase <- rep(yl[which(habit[APTOS]==clase)], 2)#
+		# qué densidades de las desviaciones#
+		ds = density(ys.clase)#
+		dl = density(yl.clase)#
+		dl = -1 * dl # le damos la vuelta para plotearlo por debajo ("especularmente" respecto al eje X)#
+		# ploteamos:#
+		if(j==1)#
+		{#
+			# plot vacío#
+			plot(0, col=0, main=colnames(long.vs.short.associations)[i], ylim = range(c(ds$y/sum(ds$y), dl$y/sum(dl$y))), xlim=range(c(ds$x, dl$x)))#
+			# la primera cosa a plotear con info:#
+			# primer hábito, al coro plazo (por arriba)#
+			points(x=ds$x, y=ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			# la segunda cosa: primer hábito al largo plazo (por debajo):#
+			points(x=dl$x, y=dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}#
+		else#
+		{#
+			# los otros hábitos, por arriba y por abajo:#
+			points(x=ds$x, y=ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			points(x=dl$x, y=dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}		#
+	}#
+#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+	abline(h=0)#
+}
+f <- colorRampPalette(c("#9F0000", "#FFBF00", "#006080"))#
+#f <- colorRampPalette(c("red", "orange", "green", "blue"))#
+COL <- f(length(unique(habit[APTOS]))) # nº de hábitos#
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#
+for(i in 1:ncol(ShortTerm_deviations))#
+{#
+	# variables respuesta, al corto y largo plazo#
+	ys = ShortTerm_deviations[APTOS,i]#
+	yl = LongTerm_deviations[APTOS,i]#
+	# loop for each nutrient:#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		# qué hábito#
+		clase = unique(habit[APTOS])[j]#
+		# qué desviaciones#
+		ys.clase <- rep(ys[which(habit[APTOS]==clase)], 2)#
+		yl.clase <- rep(yl[which(habit[APTOS]==clase)], 2)#
+		# qué densidades de las desviaciones#
+		ds = density(ys.clase)#
+		dl = density(yl.clase)#
+		dl = -1 * dl # le damos la vuelta para plotearlo por debajo ("especularmente" respecto al eje X)#
+		# ploteamos:#
+		if(j==1)#
+		{#
+			# plot vacío#
+			plot(0, col=0, main=colnames(long.vs.short.associations)[i], ylim = range(c(ds$y/sum(ds$y), dl$y/sum(dl$y))), xlim=range(c(ds$x, dl$x)))#
+			# la primera cosa a plotear con info:#
+			# primer hábito, al coro plazo (por arriba)#
+			points(x=ds$x, y=ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			# la segunda cosa: primer hábito al largo plazo (por debajo):#
+			points(x=dl$x, y=dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}#
+		else#
+		{#
+			# los otros hábitos, por arriba y por abajo:#
+			points(x=ds$x, y=ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			points(x=dl$x, y=dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}		#
+	}#
+#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+	abline(h=0)#
+}
+dl
+dl$y
+-dl$y
+f <- colorRampPalette(c("#9F0000", "#FFBF00", "#006080"))#
+#f <- colorRampPalette(c("red", "orange", "green", "blue"))#
+COL <- f(length(unique(habit[APTOS]))) # nº de hábitos#
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#
+for(i in 1:ncol(ShortTerm_deviations))#
+{#
+	# variables respuesta, al corto y largo plazo#
+	ys = ShortTerm_deviations[APTOS,i]#
+	yl = LongTerm_deviations[APTOS,i]#
+	# loop for each nutrient:#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		# qué hábito#
+		clase = unique(habit[APTOS])[j]#
+		# qué desviaciones#
+		ys.clase <- rep(ys[which(habit[APTOS]==clase)], 2)#
+		yl.clase <- rep(yl[which(habit[APTOS]==clase)], 2)#
+		# qué densidades de las desviaciones#
+		ds = density(ys.clase)#
+		dl = density(yl.clase)#
+		# ploteamos:#
+		if(j==1)#
+		{#
+			# plot vacío#
+			plot(0, col=0, main=colnames(long.vs.short.associations)[i], ylim = range(c(ds$y/sum(ds$y), dl$y/sum(dl$y))), xlim=range(c(ds$x, dl$x)))#
+			# la primera cosa a plotear con info:#
+			# primer hábito, al coro plazo (por arriba)#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			# la segunda cosa: primer hábito al largo plazo (por debajo):#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}#
+		else#
+		{#
+			# los otros hábitos, por arriba y por abajo:#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}		#
+	}#
+#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+	abline(h=0)#
+}
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#
+for(i in 1:ncol(ShortTerm_deviations))#
+{#
+	# variables respuesta, al corto y largo plazo#
+	ys = ShortTerm_deviations[APTOS,i]#
+	yl = LongTerm_deviations[APTOS,i]#
+	# loop for each nutrient:#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		# qué hábito#
+		clase = unique(habit[APTOS])[j]#
+		# qué desviaciones#
+		ys.clase <- rep(ys[which(habit[APTOS]==clase)], 2)#
+		yl.clase <- rep(yl[which(habit[APTOS]==clase)], 2)#
+		# qué densidades de las desviaciones#
+		ds = density(ys.clase)#
+		dl = density(yl.clase)#
+		# ploteamos:#
+		if(j==1)#
+		{#
+			# plot vacío#
+			plot(0, col=0, main=colnames(long.vs.short.associations)[i], ylim = range(c(ds$y/sum(ds$y), -dl$y/sum(dl$y))), xlim=range(c(ds$x, dl$x)))#
+			# la primera cosa a plotear con info:#
+			# primer hábito, al coro plazo (por arriba)#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			# la segunda cosa: primer hábito al largo plazo (por debajo):#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}#
+		else#
+		{#
+			# los otros hábitos, por arriba y por abajo:#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}		#
+	}#
+#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+	abline(h=0)#
+}
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#
+for(i in 1:ncol(ShortTerm_deviations))#
+{#
+	# variables respuesta, al corto y largo plazo#
+	ys = ShortTerm_deviations[APTOS,i]#
+	yl = LongTerm_deviations[APTOS,i]#
+	# loop for each nutrient:#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		# qué hábito#
+		clase = unique(habit[APTOS])[j]#
+		# qué desviaciones#
+		ys.clase <- rep(ys[which(habit[APTOS]==clase)], 2)#
+		yl.clase <- rep(yl[which(habit[APTOS]==clase)], 2)#
+		# qué densidades de las desviaciones#
+		ds = density(ys.clase)#
+		dl = density(yl.clase)#
+		# ploteamos:#
+		if(j==1)#
+		{#
+			# plot vacío#
+			plot(0, col=0, main=colnames(long.vs.short.associations)[i], ylim = c(-0.015, 0.015), xlim=c(-4, 6))#
+			# la primera cosa a plotear con info:#
+			# primer hábito, al coro plazo (por arriba)#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			# la segunda cosa: primer hábito al largo plazo (por debajo):#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}#
+		else#
+		{#
+			# los otros hábitos, por arriba y por abajo:#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}		#
+	}#
+#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+	abline(h=0)#
+}
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#
+for(i in 1:ncol(ShortTerm_deviations))#
+{#
+	# variables respuesta, al corto y largo plazo#
+	ys = ShortTerm_deviations[APTOS,i]#
+	yl = LongTerm_deviations[APTOS,i]#
+	# loop for each nutrient:#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		# qué hábito#
+		clase = unique(habit[APTOS])[j]#
+		# qué desviaciones#
+		ys.clase <- rep(ys[which(habit[APTOS]==clase)], 2)#
+		yl.clase <- rep(yl[which(habit[APTOS]==clase)], 2)#
+		# qué densidades de las desviaciones#
+		ds = density(ys.clase)#
+		dl = density(yl.clase)#
+		# ploteamos:#
+		if(j==1)#
+		{#
+			# plot vacío#
+			plot(0, col=0, main=colnames(long.vs.short.associations)[i], ylim = c(-0.014, 0.014), xlim=c(-4, 6))#
+			# la primera cosa a plotear con info:#
+			# primer hábito, al coro plazo (por arriba)#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			# la segunda cosa: primer hábito al largo plazo (por debajo):#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}#
+		else#
+		{#
+			# los otros hábitos, por arriba y por abajo:#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}		#
+	}#
+#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+	abline(h=0)#
+}
+habit <- rep("tree", S)#
+#habit[spp.by.traits[,"x95per.diameter"]<10] <- "treelet"#
+#habit[spp.by.traits[,"x95per.diameter"]<10 & spp.by.traits[,"mean.n.stems"]==1] <- "treelet"#
+#habit[spp.by.traits[,"x95per.diameter"]<10 & spp.by.traits[,"mean.n.stems"] >1] <- "shrub"#
+habit[spp.by.traits[, "prop.liana.ind"]>=0.5] <- "liana"#
+#
+APTOS = spp.by.traits[, "prop.hemiepifito.ind"]<0.5 # SIRVE PARA EXCLUIR HEMIEPÍFITOS#
+#
+#habit[spp.by.traits[, "prop.hemiepifito.ind"]>0.5] <- "hemi"#
+###################################################################
+# ASOCIACIONES POR HÁBITO#
+###################################################################
+#
+f <- colorRampPalette(c("#9F0000", "#FFBF00", "#006080"))#
+#f <- colorRampPalette(c("red", "orange", "green", "blue"))#
+COL <- f(length(unique(habit[APTOS]))) # nº de hábitos#
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#
+for(i in 1:ncol(ShortTerm_deviations))#
+{#
+	# variables respuesta, al corto y largo plazo#
+	ys = ShortTerm_deviations[APTOS,i]#
+	yl = LongTerm_deviations[APTOS,i]#
+	# loop for each nutrient:#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		# qué hábito#
+		clase = unique(habit[APTOS])[j]#
+		# qué desviaciones#
+		ys.clase <- rep(ys[which(habit[APTOS]==clase)], 2)#
+		yl.clase <- rep(yl[which(habit[APTOS]==clase)], 2)#
+		# qué densidades de las desviaciones#
+		ds = density(ys.clase)#
+		dl = density(yl.clase)#
+		# ploteamos:#
+		if(j==1)#
+		{#
+			# plot vacío#
+			plot(0, col=0, main=colnames(long.vs.short.associations)[i], ylim = c(-0.014, 0.014), xlim=c(-4, 6))#
+			# la primera cosa a plotear con info:#
+			# primer hábito, al coro plazo (por arriba)#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			# la segunda cosa: primer hábito al largo plazo (por debajo):#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}#
+		else#
+		{#
+			# los otros hábitos, por arriba y por abajo:#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}		#
+	}#
+#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+	abline(h=0)#
+}
+habit <- rep("tree", S)#
+#habit[spp.by.traits[,"x95per.diameter"]<10] <- "treelet"#
+#habit[spp.by.traits[,"x95per.diameter"]<10 & spp.by.traits[,"mean.n.stems"]==1] <- "treelet"#
+#habit[spp.by.traits[,"x95per.diameter"]<10 & spp.by.traits[,"mean.n.stems"] >1] <- "shrub"#
+#habit[spp.by.traits[, "prop.liana.ind"]>=0.5] <- "liana"#
+#
+APTOS = spp.by.traits[, "prop.hemiepifito.ind"]<0.5 # SIRVE PARA EXCLUIR HEMIEPÍFITOS#
+#
+#habit[spp.by.traits[, "prop.hemiepifito.ind"]>0.5] <- "hemi"#
+###################################################################
+# ASOCIACIONES POR HÁBITO#
+###################################################################
+#
+f <- colorRampPalette(c("#9F0000", "#FFBF00", "#006080"))#
+#f <- colorRampPalette(c("red", "orange", "green", "blue"))#
+COL <- f(length(unique(habit[APTOS]))) # nº de hábitos#
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#
+for(i in 1:ncol(ShortTerm_deviations))#
+{#
+	# variables respuesta, al corto y largo plazo#
+	ys = ShortTerm_deviations[APTOS,i]#
+	yl = LongTerm_deviations[APTOS,i]#
+	# loop for each nutrient:#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		# qué hábito#
+		clase = unique(habit[APTOS])[j]#
+		# qué desviaciones#
+		ys.clase <- rep(ys[which(habit[APTOS]==clase)], 2)#
+		yl.clase <- rep(yl[which(habit[APTOS]==clase)], 2)#
+		# qué densidades de las desviaciones#
+		ds = density(ys.clase)#
+		dl = density(yl.clase)#
+		# ploteamos:#
+		if(j==1)#
+		{#
+			# plot vacío#
+			plot(0, col=0, main=colnames(long.vs.short.associations)[i], ylim = c(-0.014, 0.014), xlim=c(-4, 6))#
+			# la primera cosa a plotear con info:#
+			# primer hábito, al coro plazo (por arriba)#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			# la segunda cosa: primer hábito al largo plazo (por debajo):#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}#
+		else#
+		{#
+			# los otros hábitos, por arriba y por abajo:#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}		#
+	}#
+#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+	abline(h=0)#
+}
+plot(1:3, col=COL, pch=20,cex=5)
+COL
+COL=f(3)
+plot(1:3, col=COL, pch=20,cex=5)
+plot(1:3, col=COL, pch=20,cex=5, pch="l")
+plot(1:3, col=COL, pch=20,cex=5, type="l")
+plot(1:3, col=COL, pch=20,cex=5, type="b")
+ind.LongTerm
+y = ind.LongTerm[,1]
+y
+names(y) <- rownames(ind.LongTerm)
+y.commn <- y[common]
+comunes <- function(compo, p = 0.50)#
+{#
+	z <- rev(sort(colSums(composition)))#
+	1:which(cumsum(z) >= p*sum(composition))[1]#
+}#
+#
+common <- comunes(composition)
+common
+y.rare <- y[-common]
+y.common <- y[common]
+y.rare <- y[-common]
+y.common
+y.rare
+y = ind.LongTerm[,1]
+y
+head(ind.LongTerm)
+head(LongTerm_observed)
+LongTerm_observed
+y.plots
+y.plots = ind.LongTerm[,1]
+names(y.plots) <- rownames(ind.LongTerm)
+y.plots
+composition>0
+y.plots
+matrix(y.plots, nrow=nrow(composition), ncol=ncol(composition))
+matrix(y.plots, nrow=nrow(composition), ncol=ncol(composition), byrow=TRUE)
+matrix(y.plots, nrow=nrow(composition), ncol=ncol(composition), byrow=F)
+matrix(y.plots, nrow=nrow(composition), ncol=ncol(composition), byrow=T)
+matrix(rep(y.plots, ncol(composition)), nrow=nrow(composition), ncol=ncol(composition), byrow=F)
+length(y.plots)
+rep.row<-function(x,n){#
+   matrix(rep(x,each=n),nrow=n)#
+}#
+rep.col<-function(x,n){#
+   matrix(rep(x,each=n), ncol=n, byrow=TRUE)#
+}
+rep.col(y.plots, ncol(composition))
+matrix(y.plots, ncol=S, nrow=nrow(composition))
+matrix(y.plots, ncol=S, nrow=nrow(composition), byrow=T)
+matrix(rep(y.plots, S), ncol=S, nrow=nrow(composition))
+matrix(rep(y.plots, S), ncol=S, nrow=nrow(composition), byrow=F)
+matrix(rep(y.plots, S), ncol=S, nrow=nrow(composition), byrow=T)
+dim(composition)
+do.call(cbind, y.plots)
+v = c(1, 2, 3)
+matrix(v, ncol=3)
+matrix(v, ncol=3, nrow=3)
+matrix(v, ncol=3, nrow=3, byrow=F)
+matrix(v, ncol=3, nrow=3, byrow=T)
+y.plots
+matrix(y.plots, ncol=S, nrow=nrow(composition), byrow=T)
+mm <- composition; for(i in 1:S) mm[,i] <- y.plots
+mm
+matrix(y.plots, ncol=S, nrow=nrow(composition))
+y <- composition>0 * matrix(y.plots, ncol=S, nrow=nrow(composition))
+y
+as.numeric(composition>0)
+1*composition>0
+composition>0+1
+1*(composition>0)
+(composition>0) * (matrix(y.plots, ncol=S, nrow=nrow(composition)))
+mm <- composition; mm[mm==0] <- NA
+mm
+mm <- (composition>0)*1; mm[mm==0] <- NA
+mm
+mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)
+y
+LongTerm_observed
+i = 1
+y.plots = ind.LongTerm[,i]
+names(y.plots) <- rownames(ind.LongTerm)
+mm <- (composition>0)*1; mm[mm==0] <- NA
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)
+common
+y.common <- y[common]
+y.rare <- y[-common]
+y.common
+hist(y.common)
+hist(y.rare)
+plot(x=dc$x, y=dc$y/sum(dc$y))
+dc = density(y.common)#
+dr = density(y.rare)#
+#
+plot(x=dc$x, y=dc$y/sum(dc$y))
+plot(x=dc$x, y=dc$y/sum(dc$y), type="l")#
+points(x=dr$x, y=dr$y/sum(dr$y), type="l", col=2)
+sum(dr$y/sum(dr$y))
+sum(dc$y/sum(dc$y))
+plot(x=dc$x, y=dc$y/sum(dc$y), type="l")#
+points(x=dr$x, y=dr$y/sum(dr$y), type="l", col=2)#
+points(y.plots, type="l", lty=2)
+plot(x=dc$x, y=dc$y/sum(dc$y), type="l")#
+points(x=dr$x, y=dr$y/sum(dr$y), type="l", col=2)#
+points(y.plots, type="l", lty="b")
+plot(x=dc$x, y=dc$y/sum(dc$y), type="l")#
+points(x=dr$x, y=dr$y/sum(dr$y), type="l", col=2)#
+points(density(y.plots)$y, type="l", lty="b")
+plot(x=dc$x, y=dc$y/sum(dc$y), type="l")#
+points(x=dr$x, y=dr$y/sum(dr$y), type="l", col=2)
+plot(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+plot(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)#
+points(density(y.plots)$y, type="l", lty=2)
+density(y.plots)$y
+plot(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)#
+points(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2)
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+# ejemplo#
+i = 3#
+y.plots = ind.LongTerm[,i]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+#
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+i = 5#
+y.plots = ind.LongTerm[,i]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+#
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+# ejemplo#
+i = i#
+y.plots = ind.LongTerm[,i]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+#
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+i = 1#
+y.plots = ind.LongTerm[,i]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+#
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,5]
+names(y.plots) <- rownames(ind.LongTerm)
+mm <- (composition>0)*1; mm[mm==0] <- NA
+mm
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)
+y
+hist(y)
+y.common <- y[common]
+y.rare <- y[-common]
+dc = density(y.common)#
+dr = density(y.rare)
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))
+density(y.plots)$y
+?density
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y/sum(dc$y), type="l")#
+points(x=dr$x, y=dr$y/sum(dr$y), type="l", col=2)
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=512*dc$y/sum(dc$y), type="l")#
+points(x=dr$x, y=512*dr$y/sum(dr$y), type="l", col=2)
+y.plots = ind.LongTerm[,9]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+#
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,9]
+names(y.plots) <- rownames(ind.LongTerm)
+mm <- (composition>0)*1; mm[mm==0] <- NA
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)
+y.common <- y[common]
+y.rare <- y[-common]
+dc = density(y.common)
+dr = density(y.rare)
+plot(dc)
+plot(dr)
+plot(x=density(y.plots)$x, density(y.plots)$y, type="l", lty=2, ylim=c(0,1))
+plot(x=density(y.plots)$x, y=density(y.plots)$y, type="l", lty=2, ylim=c(0,1))
+dp = density(y.plots)
+plot(dp)
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=c(0,1))
+sum(dp$y)
+dp$y
+?density
+plot(x=dp$x, y=dp$y, type="l", lty=2)
+y.plots = ind.LongTerm[,9]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2)#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,1]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2)#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,9]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2)#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=c(0, dp$y, dc$y, dr$y))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots))#
+abline(v=mean(y), col=2)#
+points(x=dc$x, y=dc$y, type="l", lwd=2)#
+points(x=dr$x, y=dr$y, type="l", col=2, lwd=2)
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,1]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,2]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,3]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,4]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,5]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,6]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.LongTerm[,7]#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.ShortTerm[,1]#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.ShortTerm[,2]#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.ShortTerm[,3]#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.ShortTerm[,4]#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.ShortTerm[,5]#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.ShortTerm[,6]#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.ShortTerm[,7]#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y.plots = ind.ShortTerm[,8]#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+y
+y <- ShortTerm_deviations[,i]
+y
+i=4#
+y.plots = scale(ind.ShortTerm[,i])#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+#y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y <- ShortTerm_deviations[,i]#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)
+par(mfrow=c(3, 3))#
+for(i in 1:9)#
+{#
+y.plots = scale(ind.ShortTerm[,i])#
+names(y.plots) <- rownames(ind.ShortTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+#y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y <- ShortTerm_deviations[,i]#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)#
+}
+par(mfrow=c(3, 3))#
+for(i in 1:9)#
+{#
+y.plots = scale(ind.LongTerm[,i])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+#y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y <- LongTerm_deviations[,i]#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)#
+}
+###################################################################
+# ASOCIACIONES POR HÁBITO#
+###################################################################
+#
+f <- colorRampPalette(c("#9F0000", "#FFBF00", "#006080"))#
+#f <- colorRampPalette(c("red", "orange", "green", "blue"))#
+COL <- f(length(unique(habit[APTOS]))) # nº de hábitos#
+par(mfrow=c(3, 3), mar=c(5, 4, 2, 1))#
+#
+for(i in 1:ncol(ShortTerm_deviations))#
+{#
+	# variables respuesta, al corto y largo plazo#
+	ys = ShortTerm_deviations[APTOS,i]#
+	yl = LongTerm_deviations[APTOS,i]#
+	# loop for each nutrient:#
+	for(j in 1:length(unique(habit[APTOS])))#
+	{#
+		# qué hábito#
+		clase = unique(habit[APTOS])[j]#
+		# qué desviaciones#
+		ys.clase <- rep(ys[which(habit[APTOS]==clase)], 2)#
+		yl.clase <- rep(yl[which(habit[APTOS]==clase)], 2)#
+		# qué densidades de las desviaciones#
+		ds = density(ys.clase)#
+		dl = density(yl.clase)#
+		# ploteamos:#
+		if(j==1)#
+		{#
+			# plot vacío#
+			plot(0, col=0, main=colnames(long.vs.short.associations)[i], ylim = c(-0.014, 0.014), xlim=c(-4, 6))#
+			# la primera cosa a plotear con info:#
+			# primer hábito, al coro plazo (por arriba)#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			# la segunda cosa: primer hábito al largo plazo (por debajo):#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}#
+		else#
+		{#
+			# los otros hábitos, por arriba y por abajo:#
+			points(x=ds$x, y=  ds$y/sum(ds$y), type="l", col=COL[j], lwd=2)#
+			points(x=dl$x, y= -dl$y/sum(dl$y), type="l", col=COL[j], lwd=2)#
+		}		#
+	}#
+#
+	if(i == 1) legend(x=1, y=0.015, legend=unique(habit), col=COL, lwd=2)#
+	abline(v=0)#
+	abline(h=0)#
+}
+# ejemplo#
+#
+par(mfrow=c(3, 3))#
+for(i in 1:9)#
+{#
+y.plots = scale(ind.LongTerm[,i])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+#y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+y <- LongTerm_deviations[,i]#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)#
+}
+par(mfrow=c(3, 3))#
+for(i in 1:9)#
+{#
+y.plots =(ind.LongTerm[,i])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)#
+#y <- LongTerm_deviations[,i]#
+y.common <- y[common]#
+y.rare <- y[-common]#
+#
+dc = density(y.common)#
+dr = density(y.rare)#
+dp = density(y.plots)#
+#
+plot(x=dp$x, y=dp$y, type="l", lty=2, ylim=range(c(0, dp$y, dc$y, dr$y)))#
+abline(v=mean(y.plots), lwd=2)#
+abline(v=mean(y), col=2, lwd=2)#
+points(x=dc$x, y=dc$y, type="l")#
+points(x=dr$x, y=dr$y, type="l", col=2)#
+}
+COL2 = f(length(99:0))
+COL2
+plot(1:100, col=COL2, pch=20)
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,1])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100)]#
+#
+d = density(y)#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", lty=2, ylim=c(0, 1), col=COL2[which(99:0)==i])#
+if(i!=99) points(x=d$x, y=d$y, type="l", lty=2, col=COL2[which(99:0)==i])#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,1])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100)]#
+#
+d = density(y)#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", lty=2, ylim=c(0, 1), col=COL2[which(99:0 == i)])#
+if(i!=99) points(x=d$x, y=d$y, type="l", lty=2, col=COL2[which(99:0)==i])#
+}
+c(99:0)
+i
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,1])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100)]#
+#
+d = density(y)#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", lty=2, ylim=c(0, 1), col=COL2[which(c(99:0) == i)])#
+if(i!=99) points(x=d$x, y=d$y, type="l", lty=2, col=COL2[which(99:0)==i])#
+}
+c(99:0) == i
+which(c(99:0) == i)
+COL2[which(c(99:0) == i)]
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,1])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100)]#
+#
+d = density(y)#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", lty=2, ylim=c(0, 1), col=COL2[which(c(99:0) == i)])#
+if(i!=99) points(x=d$x, y=d$y, type="l", lty=2, col=COL2[which(c(99:0) == i)])#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,1])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(y)#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", lty=2, ylim=c(0, 1), col=COL2[which(c(99:0) == i)])#
+if(i!=99) points(x=d$x, y=d$y, type="l", lty=2, col=COL2[which(c(99:0) == i)])#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,1])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", lty=2, ylim=c(0, 1), col=COL2[which(c(99:0) == i)])#
+if(i!=99) points(x=d$x, y=d$y, type="l", lty=2, col=COL2[which(c(99:0) == i)])#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,1])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 5), col=tr(COL2[which(c(99:0) == i)]))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+p=1-(i/100))
+1-(i/100)
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,2])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 5), col=tr(COL2[which(c(99:0) == i)]))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,2])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,2])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 5*max(d$y)), col=tr(COL2[which(c(99:0) == i)]))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,2])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 5*max(d$y)), col=tr(COL2[which(c(99:0) == i)]), xlim=range(y.plots))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.LongTerm[,3])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 6*max(d$y)), col=tr(COL2[which(c(99:0) == i)]), xlim=range(y.plots))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.ShortTerm[,3])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 6*max(d$y)), col=tr(COL2[which(c(99:0) == i)]), xlim=range(y.plots))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.ShortTerm[,2])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 6*max(d$y)), col=tr(COL2[which(c(99:0) == i)]), xlim=range(y.plots))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+d
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.ShortTerm[,5])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 6*max(d$y)), col=tr(COL2[which(c(99:0) == i)]), xlim=range(y.plots))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.ShortTerm[,7])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 6*max(d$y)), col=tr(COL2[which(c(99:0) == i)]), xlim=range(y.plots))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+comunes(composition, p=1-(i/100))
+COL2 = f(length(99:0))#
+for(i in 99:0)#
+{#
+#
+y.plots =(ind.ShortTerm[,9])#
+names(y.plots) <- rownames(ind.LongTerm)#
+#
+mm <- (composition>0)*1; mm[mm==0] <- NA#
+#
+y <- colMeans((mm * (matrix(y.plots, ncol=S, nrow=nrow(composition)))), na.rm=T)[comunes(composition, p=1-(i/100))]#
+#
+d = density(rep(y, 2))#
+#
+if(i==99) plot(x=d$x, y=d$y, type="l", ylim=c(0, 6*max(d$y)), col=tr(COL2[which(c(99:0) == i)]), xlim=range(y.plots))#
+if(i!=99) points(x=d$x, y=d$y, type="l", col=tr(COL2[which(c(99:0) == i)]))#
+}
+###################################################################
+# INTENSIDAD DE LA COMPETENCE AVOIDANCE CON OTRAS ESPECIES CIij#
+###################################################################
+# Essentially, the distance to the mean response of the other species, expressed in standardized units#
+LongTerm_CA <- abs((LongTerm_deviations - colMeans(LongTerm_deviations)) / apply(LongTerm_deviations, 2, sd))#
+ShortTerm_CA <- abs((ShortTerm_deviations - colMeans(ShortTerm_deviations)) / apply(ShortTerm_deviations, 2, sd))#
+# CA VS ABUNDANCIA TOTAL#
+pdf(file=paste0(path.to.figures, "ca_vs_abundancia.pdf"), height=3, width=6)#
+par(mfrow=c(1, 2))#
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[which(!rownames(ShortTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+plot(x= log(rowMeans(LongTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Long term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(LongTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(LongTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(LongTerm_CA))[which(!rownames(LongTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+dev.off()
+# CA VS ABUNDANCIA TOTAL#
+pdf(file=paste0(path.to.figures, "ca_vs_abundancia.pdf"), height=9, width=18)#
+par(mfrow=c(1, 2))#
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[which(!rownames(ShortTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+plot(x= log(rowMeans(LongTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Long term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(LongTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(LongTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(LongTerm_CA))[which(!rownames(LongTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+dev.off()
+# CA VS ABUNDANCIA TOTAL#
+#
+common = comunes(composition)#
+#
+pdf(file=paste0(path.to.figures, "ca_vs_abundancia.pdf"), height=9, width=18)#
+par(mfrow=c(1, 2))#
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[which(!rownames(ShortTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+plot(x= log(rowMeans(LongTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Long term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(LongTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(LongTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(LongTerm_CA))[which(!rownames(LongTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+dev.off()
+common = comunes(composition)#
+#
+A = 7.5#
+pdf(file=paste0(path.to.figures, "ca_vs_abundancia.pdf"), height=a, width=2*A)#
+par(mfrow=c(1, 2))#
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[which(!rownames(ShortTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+plot(x= log(rowMeans(LongTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Long term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(LongTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(LongTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(LongTerm_CA))[which(!rownames(LongTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+dev.off()
+common = comunes(composition)#
+#
+A = 7.5#
+pdf(file=paste0(path.to.figures, "ca_vs_abundancia.pdf"), height=A, width=2*A)#
+par(mfrow=c(1, 2))#
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[which(!rownames(ShortTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+plot(x= log(rowMeans(LongTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Long term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(LongTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(LongTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(LongTerm_CA))[which(!rownames(LongTerm_CA) %in% common)])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+dev.off()
+common = comunes(composition)
+common
+common = comunes(composition)#
+#
+A = 7.5#
+pdf(file=paste0(path.to.figures, "ca_vs_abundancia.pdf"), height=A, width=2*A)#
+par(mfrow=c(1, 2))#
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[-common])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+plot(x= log(rowMeans(LongTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Long term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(LongTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(LongTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(LongTerm_CA))[-common])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+dev.off()
+log(rowMeans(ShortTerm_CA))
+log(rowMeans(ShortTerm_CA))[-common]
+log(rowMeans(ShortTerm_CA))[common]
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[-common])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick")
+# CA VS ABUNDANCIA TOTAL#
+#
+common = comunes(composition)#
+#
+A = 7.5#
+pdf(file=paste0(path.to.figures, "ca_vs_abundancia.pdf"), height=A, width=2*A)#
+par(mfrow=c(1, 2))#
+plot(x= log(rowMeans(ShortTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Short term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(ShortTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(ShortTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(ShortTerm_CA))[-common])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+plot(x= log(rowMeans(LongTerm_CA)), y=log(colSums(composition)), pch=20, col = tr("blue", 0.3), main="Long term", ylab="log(abundance)", xlab="log of mean CA index", cex=2)#
+LM = lm(log(colSums(composition))~log(rowMeans(LongTerm_CA)))#
+summary(LM)#
+#abline(a = coef(LM)[1], b=coef(LM)[2])#
+d = density(log(rowMeans(LongTerm_CA))[common])#
+points(x=d$x, y=d$y*5, pch="l")#
+d = density(log(rowMeans(LongTerm_CA))[-common])#
+points(x=d$x, y=d$y*5, pch="l", col="firebrick") #
+dev.off()
+common
+library(shinyapps)
+library(devtools)
+devtools::install_github(repo = "shinyapps", username="rstudio")
+library(shinyapps)
+library(shiny)
+library(jpeg)
+library(raster)
+library(abind)
+shinyapps::setAccountInfo(name='gabrielareto', token='64E2CABB39C98BADD4CA6CEB256144EC', secret='LfAzaI2VBDlprSoAYXLDMPDRdpWd0Z1KbDQby9ha')
+citation("devtools")
+shinyapps::setAccountInfo(name='gabrielareto', token='64E2CABB39C98BADD4CA6CEB256144EC', secret='LfAzaI2VBDlprSoAYXLDMPDRdpWd0Z1KbDQby9ha')
+deployApp()

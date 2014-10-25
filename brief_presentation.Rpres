@@ -1,0 +1,224 @@
+Palette Extractor: how it works
+========================================================
+width: 1200
+height: 1000
+author: Gabriel Arellano
+date: October 25, 2014
+
+Humans recognize color trends in images. But it is difficult to implement an authomated method to do so:
+
+- Many pixels
+- Each pixel with virtually a different color
+- Each color with very different frequency
+
+Here I present the basics of the app, with some code hints.
+
+Enjoy it!
+
+Reads image
+========================================================
+
+The Palette Extractor app reads any jpg image provided by the user, by making use of `readJPEG` function in jpeg package:
+
+```{r, eval=FALSE}
+image <- readJPEG(input$file$datapath)
+```
+
+```{r, echo=FALSE}
+library(jpeg)
+library(raster)
+library(abind)
+image <- readJPEG(source="/Users/marielainsua/Documents/PROFESIONAL/PROYECTOS/ImageColorAnalysis/vangogh.jpg")
+
+width = dim(image)[2]
+height = dim(image)[1]
+par(mar=c(0, 0, 0, 0), oma=c(0, 0, 0, 0))
+plot(c(0,width),c(0,height), type='n', ylab="", xlab="", xaxt="n", yaxt="n")
+rasterImage(as.raster(image), 0, 0, width, height)
+```
+
+Reduces resolution
+========================================================
+It reduces resolution with `aggregate` function in raster package:
+```{r}
+FACT <- round(sqrt(dim(image)[1]*dim(image)[2]/3000))
+new <- list()
+for(i in 1:dim(image)[3]) {
+      x <- image[,,i]
+      r <- raster(list(x=1:nrow(x), y=1:ncol(x), z=x))
+      new[i] <- list(t(as.matrix(aggregate(r, fact=FACT))))
+}
+image <- abind(new[[1]], new[[2]], new[[3]], along=3)
+
+```
+
+```{r, echo=FALSE}
+image <- image[,dim(image)[2]:1,]
+width = dim(image)[2]
+height = dim(image)[1]
+par(mar=c(0, 0, 0, 0), oma=c(0, 0, 0, 0))
+plot(c(0,width),c(0,height), type='n', ylab="", xlab="", xaxt="n", yaxt="n")
+rasterImage(as.raster(image), 0, 0, width, height)
+```
+
+```
+
+
+Rounds Red, Green and Blue channels
+========================================================
+
+The basic color clustering method implemented is progressive rounding of R, G, and B channels of all pixels, stored in the matrix `RGB0`, according to the number of final colors specified `k`:
+
+```{r, eval=FALSE}
+kref = c(k:(k+round(k/3))) # desired output + some margin
+upper <- 1000 # round to the thousandth
+lower <- 1 # round to the unit
+N0 <- 0
+for(i in 1:50){
+  a <- round((upper+lower)/2) # precission parameter
+  RGB.not.unique <- round(RGB0*a)/a # useful later
+  RGB <- unique(RGB.not.unique)
+  N = nrow(RGB) # number of colors
+  # pseudo divide and conquer algorithm:
+  if(N < kref[1]) lower <- a # if too few: search above current a
+  if(N > kref[length(kref)]) upper <- a # if too many: search below current a
+  if(N == N0) break() # breaks if no improvement
+  if(N %in% kref) break() # or if we have an acceptable number of colors
+  N0 <- N
+}
+    
+```
+
+Selects most frequent colors
+========================================================
+
+The `kref` vector tends to select too many colors. The app just truncates the least frequent colors to have only `k`colors:
+
+```{r, eval=FALSE}
+COL.not.unique <- rgb(RGB.not.unique[,"R"], RGB.not.unique[,"G"], RGB.not.unique[,"B"])
+freq.col <- sort(table(COL.not.unique), decreasing=T)
+freq.col <- freq.col[1:k] # truncates to k
+```
+
+```{r, echo=FALSE}
+
+extractPalette <- function(image, order.by=c("R", "G", "B", "darkness"), maxit=100, k=25, exact=F, flat=F, trace=T, plot.frequencies=F, plot.palette=F, main="Color palette")
+{
+      # ARGUMENTS:
+	# image: an array of three matrixes, one per channel (in R, G, B format)
+	# order.by: the variable for which sort the output: from bright to dark, from red to non-red, etc
+	# maxit: maximum number of iterations to reduce the number of colors
+	# k: the number of desired palette chips (the number of desired output colors)
+	# exact: logical, indicating if exactly k colors are to be kept
+	# flat: logical or numeric
+	#		if FALSE: true colors are kept
+	#		if TRUE: only flat colors are kept, by averaging darkness across all pixels
+	#		if some value between 0 and 1, that is the mean darkness for all pixels
+	# trace: logical, to follow (or not) the divide-and-conquer algorithm of color reduction
+	# plot.frequencies: logical, to create a barplot with the frequencies of each color
+	# plot.palette: a matrix of colored square chips. By default TRUE: it's nice to see that!
+	# main: the main title for plotting the palette
+	
+	# RETURNS:
+	# a named numeric vector, with exactly or approximately k colors with the frequency of each color (number of pixels)
+	# the names of the vector are color names in hexagesimal format
+	
+		
+	R <- as.vector(image[,,1])
+	G <- as.vector(image[,,2])
+	B <- as.vector(image[,,3])
+	RGB0 <- data.frame(R, G, B)
+	if(flat!=FALSE)
+	{
+		darkness.per.pixel <- rowMeans(RGB0)
+		if(flat==TRUE) average.darkness <- mean(darkness.per.pixel) # the darkness reference for all pixels
+		if(flat!=TRUE) average.darkness <- flat
+		factors <- average.darkness/darkness.per.pixel
+		factors <- cbind(factors, factors, factors)
+		RGB0 <- RGB0*factors
+		RGB0[RGB0>1] <- 1 # truncates to 1
+	}
+	
+	
+	# Round the colors, according to the number of desired output colors
+	margin <- 1.5 # wide enough
+	kref = c(k:(k+round(margin/2*k))) # desired output, with some margin
+	N = nrow(RGB0) # true number of colors (too many)
+	upper <- 1000 # round to the thousandth
+	lower <- 1 # round to the unit (only primary colors, black, or white)
+	N0 <- 0
+	for(i in 1:maxit)
+	{
+		a <- round((upper+lower)/2) # precission parameter to adjust
+		RGB.not.unique <- round(RGB0*a)/a
+		RGB <- unique(RGB.not.unique)
+		N = nrow(RGB) # number of colors
+		
+		#print(paste(i, "parameter", a))
+		if(trace==TRUE) print(paste(N, "different colors"))
+		
+		# pseudo divide and conquer algorithm:
+		if(N < kref[1]) lower <- a # if there are too few colors, it will search above current a
+		if(N > kref[length(kref)]) upper <- a # if there are too many colors, it will search below current a
+		
+		if(N == N0) break() # breaks the loop if there is no improvement	
+		if(N %in% kref) break() # if we have an acceptable number of colors, it breaks the loop
+		N0 <- N
+	}
+	
+	
+	# Calculates the frequency of each color:
+	COL.not.unique <- rgb(RGB.not.unique[,"R"], RGB.not.unique[,"G"], RGB.not.unique[,"B"])
+	freq.col <- sort(table(COL.not.unique), decreasing=T)
+	if(exact==TRUE) freq.col <- freq.col[1:k] # truncates to k, discards only infrequent colors in the image
+	
+	# Creates/subsets COL and RGB objects
+	COL <- rgb(RGB[,"R"], RGB[,"G"], RGB[,"B"])
+	keep <- COL %in% names(freq.col)
+	COL <- COL[keep]
+	RGB <- RGB[keep,]
+	
+	# Order the colors by a given criterion:
+	darkness <- RGB[,"R"] + RGB[,"G"] + RGB[,"B"]
+	if(order.by == "darkness") o <- order(darkness, decreasing=T)
+	if(order.by == "R") o <- order(RGB[,"R"]/darkness, decreasing=T)
+	if(order.by == "G") o <- order(RGB[,"G"]/darkness, decreasing=T)
+	if(order.by == "B") o <- order(RGB[,"B"]/darkness, decreasing=T)
+	COL <- COL[o]
+	freq.col <- freq.col[COL]
+	
+	# Plots frequencies, if desired
+	if(plot.frequencies==TRUE) barplot(freq.col, col=COL, main="Color frequencies", names=NA)
+	
+	# Plots palette, if desired
+	if(plot.palette==TRUE)
+	{
+		# Establishes parameters to plot the palette
+		N <- length(COL)
+		l <- ceiling(sqrt(N))
+		x <- rep(1:l, l)[1:N]
+		y <- unlist(lapply(l:1, function(x) rep(x, l)))[1:N]
+		w <- 0.87 # width of the colored squares [0, 1]
+		XLIM <- range(c(x + (w/2), x - (w/2)))
+		YLIM <- range(c(y + (w/2), y - (w/2)))
+	
+		# Plots the palette:
+		plot(0, col=0, xlim=XLIM, ylim=YLIM, main=main, xlab=NA, ylab=NA, xaxt="n", yaxt="n", bty="n")
+		for(i in 1:N)
+			polygon(x=c(x[i]-w/2, x[i]-w/2, x[i]+w/2, x[i]+w/2), y=c(y[i]-w/2, y[i]+w/2, y[i]+w/2, y[i]-w/2), col=COL[i], border=NA)
+	}
+	
+	# Output:
+	return(freq.col)
+}
+
+aa <- extractPalette(image, trace=F, k=25)
+par(mar=c(5, 5, 1, 1), oma=c(0, 0, 0, 0))
+barplot(sort(aa, decreasing=T), col=names(sort(aa, decreasing=TRUE)), las=2)
+abline(v=20.5)
+text(x=30, y=400, "Truncate k=20", cex=2, xpd=T)
+
+```
+
+
+
